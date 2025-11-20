@@ -1,161 +1,143 @@
+#include "../RacesLib/include/Race.h"
+#include "../RacesLib/include/Camel.h"
+#include "../RacesLib/include/FastCamel.h"
+#include "../RacesLib/include/Centaur.h"
+#include "../RacesLib/include/Boots.h"
+#include "../RacesLib/include/Carpet.h"
+#include "../RacesLib/include/Eagle.h"
+#include "../RacesLib/include/Broom.h"
+
 #include <iostream>
-#include <string>
 #include <vector>
-#include <set>
 #include <memory>
-#include "Transport.h"
-#include "Camel.h"
-#include "CamelFast.h"
-#include "Centaur.h"
-#include "Boots.h"
-#include "Carpet.h"
-#include "Eagle.h"
-#include "Broom.h"
-#include "RaceManager.h"
 
-RaceType chooseRaceType();
-double getDistance();
-void registerParticipants(Race& race);
-void displayResults(const std::vector<ParticipantResult>& results);
-bool askToContinue();
-
-int main() {
-    while (true) {
-        RaceType raceType = chooseRaceType();
-
-        double distance = getDistance();
-
-        auto race = RaceManager::createRace(raceType, distance);
-
-        registerParticipants(*race);
-
-        auto results = race->run();
-        displayResults(results);
-
-        if (!askToContinue()) break;
-    }
-    return 0;
-}
-
-RaceType chooseRaceType() 
+int main() 
 {
-    std::cout << "\nВыберите тип гонки:\n";
-    std::cout << "1. Наземная (только наземные ТС)\n";
-    std::cout << "2. Воздушная (только воздушные ТС)\n";
-    std::cout << "3. Смешанная (все ТС)\n";
-    int choice;
-    std::cin >> choice;
-
-    switch (choice) 
-    {
-    case 1: return RaceType::LAND;
-    case 2: return RaceType::AIR;
-    case 3: return RaceType::MIXED;
-    default:
-    {
-        std::cout << "Неверный выбор, попробуйте снова.\n";
-        return chooseRaceType();
-    }
-    }
-}
-
-double getDistance() 
-{
-    double distance;
-    std::cout << "\nВведите дистанцию гонки (км): ";
-    std::cin >> distance;
-    return distance;
-}
-
-void registerParticipants(Race& race) 
-{
-    std::set<std::string> registeredNames;
-    std::vector<std::string> availableTransports = 
-    {
-        "Верблюд", "Верблюд-быстроход", "Кентавр", "Ботинки-вездеходы",
-        "Ковёр-самолёт", "Орёл", "Метла"
-    };
-
     while (true) 
     {
-        std::cout << "\nДоступные ТС для регистрации:\n";
-        for (const auto& name : availableTransports) 
+        std::cout << "\n=== Симулятор гонок ===\n";
+        std::cout << "Выберите тип гонки:\n";
+        std::cout << "1. Наземная (только наземные ТС)\n";
+        std::cout << "2. Воздушная (только воздушные ТС)\n";
+        std::cout << "3. Смешанная (наземные + воздушные ТС)\n";
+
+        int raceTypeChoice;
+        std::cin >> raceTypeChoice;
+
+        Race::Type raceType;
+        switch (raceTypeChoice) 
         {
-            if (registeredNames.find(name) == registeredNames.end()) 
-            { std::cout << "- " << name << "\n"; }
+        case 1: raceType = Race::Type::Ground; break;
+        case 2: raceType = Race::Type::Air; break;
+        case 3: raceType = Race::Type::Mixed; break;
+        default:
+            std::cout << "Неверный выбор. Попробуйте снова.\n";
+            continue;
         }
 
-        std::cout << "\nВведите название ТС для регистрации (или 'старт' для начала гонки): ";
-        std::string name;
-        std::cin >> name;
+        double distance;
+        std::cout << "Введите дистанцию гонки (км): ";
+        std::cin >> distance;
 
-        if (name == "старт") 
+        if (distance <= 0) 
         {
-            if (race.participants.size() < 2) 
+            std::cout << "Дистанция должна быть положительной!\n";
+            continue;
+        }
+
+        Race race(raceType, distance);
+        std::vector<std::unique_ptr<Transport>> registeredTransports;
+
+        std::cout << "\nРегистрация ТС. Минимум 2 участника.\n";
+
+        while (true) 
+        {
+            std::cout << "\nДоступные действия:\n";
+            std::cout << "1. Зарегистрировать ТС\n";
+            std::cout << "2. Начать гонку\n";
+
+            int action;
+            std::cin >> action;
+
+            if (action == 1) 
             {
-                std::cout << "Нужно зарегистрировать минимум 2 ТС!\n";
-                continue;
-            }
-            break;
-        }
+                std::cout << "\nВыберите ТС для регистрации:\n";
+                std::cout << "1. Верблюд (наземный)\n";
+                std::cout << "2. Верблюд-быстроход (наземный)\n";
+                std::cout << "3. Кентавр (наземный)\n";
+                std::cout << "4. Ботинки-вездеходы (наземный)\n";
+                std::cout << "5. Ковёр-самолёт (воздушный)\n";
+                std::cout << "6. Орёл (воздушный)\n";
+                std::cout << "7. Метла (воздушный)\n";
 
-        bool found = false;
-        for (const auto& avail : availableTransports) 
-        {
-            if (avail == name) 
+                int transportChoice;
+                std::cin >> transportChoice;
+
+                std::unique_ptr<Transport> newTransport;
+
+                switch (transportChoice) 
+                {
+                case 1: newTransport = std::make_unique<Camel>(); break;
+                case 2: newTransport = std::make_unique<FastCamel>(); break;
+                case 3: newTransport = std::make_unique<Centaur>(); break;
+                case 4: newTransport = std::make_unique<Boots>(); break;
+                case 5: newTransport = std::make_unique<Carpet>(); break;
+                case 6: newTransport = std::make_unique<Eagle>(); break;
+                case 7: newTransport = std::make_unique<Broom>(); break;
+                default:
+                    std::cout << "Неверный выбор ТС. Попробуйте снова.\n";
+                    continue;
+                }
+
+                if (race.registerTransport(newTransport.get())) 
+                {
+                    registeredTransports.push_back(std::move(newTransport));
+                    std::cout << newTransport->getName() << " успешно зарегистрирован!\n";
+                }
+                else 
+                {
+                    std::cout << "Ошибка регистрации ТС:\n";
+                    std::cout << "- Возможно, ТС уже зарегистрировано\n";
+                    std::cout << "- Или тип ТС не соответствует типу гонки\n";
+                }
+            }
+            else if (action == 2) 
             {
-                found = true;
-                break;
+                if (registeredTransports.size() < 2) 
+                {
+                    std::cout << "Необходимо зарегистрировать минимум 2 ТС!\n";
+                    continue;
+                }
+
+                auto results = race.start();
+
+                std::cout << "\n=== Результаты гонки ===\n";
+                for (const auto& result : results) 
+                {
+                    std::cout << result.name << ": " << result.time << " ч\n";
+                }
+
+                std::cout << "\nХотите провести ещё одну гонку?\n";
+                std::cout << "1. Да\n2. Нет (выход)\n";
+                int nextAction;
+                std::cin >> nextAction;
+
+                if (nextAction != 1) 
+                {
+                    std::cout << "До свидания!\n";
+                    return 0;
+                }
+                else 
+                {
+                    registeredTransports.clear();
+                    break;
+                }
+            }
+            else {
+                std::cout << "Неверный выбор действия. Попробуйте снова.\n";
             }
         }
-        if (!found) 
-        {
-            std::cout << "ТС не найдено!\n";
-            continue;
-        }
-
-        if (registeredNames.find(name) != registeredNames.end()) 
-        {
-            std::cout << "Это ТС уже зарегистрировано!\n";
-            continue;
-        }
-
-        std::unique_ptr<Transport> transport;
-        if (name == "Верблюд") transport = std::make_unique<Camel>();
-        else if (name == "Верблюд-быстроход") transport = std::make_unique<CamelFast>();
-        else if (name == "Кентавр") transport = std::make_unique<Centaur>();
-        else if (name == "Ботинки-вездеходы") transport = std::make_unique<Boots>();
-        else if (name == "Ковёр-самолёт") transport = std::make_unique<Carpet>();
-        else if (name == "Орёл") transport = std::make_unique<Eagle>();
-        else if (name == "Метла") transport = std::make_unique<Broom>();
-
-        if (!RaceManager::isValidParticipant(*transport, race.type)) 
-        {
-            std::cout << "Нельзя зарегистрировать это ТС в данной гонке!\n";
-            continue;
-        }
-
-        race.addParticipant(std::move(transport));
-        registeredNames.insert(name);
-        std::cout << name << " зарегистрирован!\n";
     }
-}
 
-void displayResults(const std::vector<ParticipantResult>& results) 
-{
-    std::cout << "\nРезультаты гонки:\n";
-    for (const auto& result : results) 
-    {
-        std::cout << result.name << ": "
-            << std::fixed << std::setprecision(2) << result.time
-            << " ч\n";
-    }
-}
-
-bool askToContinue() 
-{
-    std::cout << "\nХотите провести ещё одну гонку? (да/нет): ";
-    std::string choice;
-    std::cin >> choice;
-    return (choice == "да" || choice == "yes" || choice == "y");
+    return EXIT_SUCCESS;
 }

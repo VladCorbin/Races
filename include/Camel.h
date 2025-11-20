@@ -1,8 +1,9 @@
 #pragma once
-#include "LandTransport.h"
+#include "GroundTransport.h"
 
-class Camel : public LandTransport 
+class Camel : public GroundTransport 
 {
 public:
-    Camel() : LandTransport(10, "Верблюд", 30, { 5,8 }) {}
+    Camel();
+    std::string getName() const override;
 };

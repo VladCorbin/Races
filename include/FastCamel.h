@@ -1,9 +1,9 @@
 #pragma once
 #include "GroundTransport.h"
 
-class Centaur : public GroundTransport 
+class FastCamel : public GroundTransport 
 {
 public:
-    Centaur();
+    FastCamel();
     std::string getName() const override;
 };

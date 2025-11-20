@@ -1,8 +1,9 @@
 #pragma once
-#include "LandTransport.h"
+#include "GroundTransport.h"
 
-class Boots : public LandTransport 
+class Boots : public GroundTransport
 {
 public:
-    Boots() : LandTransport(6, "Ботинки-вездеходы", 60, { 10, 5 }) {}
+    Boots();
+    std::string getName() const override;
 };

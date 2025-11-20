@@ -1,11 +1,11 @@
 #include "AirTransport.h"
 
-AirTransport::AirTransport(double speed, const std::string& name)
-    : Transport(speed, name, true) {}
+AirTransport::AirTransport(double speed, std::function<double(double)> coefficientFunc)
+    : Transport(TransportType::Air, speed), coefficientFunc(coefficientFunc) {}
 
-double AirTransport::calculateTime(double distance) 
+double AirTransport::calculateTime(double distance) const 
 {
-    double coeff = getReductionCoeff(distance);
-    double adjustedDistance = distance * (1 - coeff);
+    double coeff = coefficientFunc(distance);
+    double adjustedDistance = distance * (1.0 - coeff);
     return adjustedDistance / speed;
 }

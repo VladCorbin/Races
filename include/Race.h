@@ -1,26 +1,25 @@
 #pragma once
-#include "Transport.h"
 #include <vector>
-#include <memory>
+#include <string>
+#include "Transport.h"
 
-enum class RaceType { LAND, AIR, MIXED };
-
-struct ParticipantResult 
+struct RaceResult 
 {
     std::string name;
     double time;
-    bool operator<(const ParticipantResult& other) const { return time < other.time; }
 };
 
 class Race 
 {
-protected:
-    RaceType type;
-    double distance;
-    std::vector<std::unique_ptr<Transport>> participants;
-
 public:
-    Race(RaceType type, double distance);
-    void addParticipant(std::unique_ptr<Transport> transport);
-    std::vector<ParticipantResult> run();
+    enum class Type { Ground, Air, Mixed };
+
+    Race(Type type, double distance);
+    bool registerTransport(const Transport* transport);
+    std::vector<RaceResult> start() const;
+
+private:
+    Type type;
+    double distance;
+    std::vector<const Transport*> participants;
 };

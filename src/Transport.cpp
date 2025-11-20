@@ -1,7 +1,6 @@
 #include "Transport.h"
 
-Transport::Transport(double speed, const std::string& name, bool isAir)
-    : speed(speed), name(name), isAir(isAir) {}
+Transport::Transport(TransportType type, double speed) : type(type), speed(speed) {}
 
-const std::string& Transport::getName() const { return name; }
+TransportType Transport::getType() const { return type; }
 double Transport::getSpeed() const { return speed; }
